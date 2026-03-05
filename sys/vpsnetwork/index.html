@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>云端 VPS 外网不可达的处理方案</title>
+  <style>
+    :root {
+      --bg: #0b0f1a;
+      --bg-2: #0f1526;
+      --card: #121a2f;
+      --neon: #79f8d4;
+      --neon-2: #7bb8ff;
+      --accent: #ff8ad4;
+      --text: #e7f1ff;
+      --muted: #b8c3da;
+      --grid: rgba(121, 248, 212, 0.08);
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(121, 248, 212, 0.12), transparent 55%),
+        radial-gradient(circle at 15% 20%, rgba(255, 138, 212, 0.12), transparent 40%),
+        linear-gradient(180deg, var(--bg), var(--bg-2));
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    .grid-overlay {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+      background-size: 36px 36px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    header {
+      position: relative;
+      z-index: 1;
+      padding: 48px 20px 28px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: clamp(28px, 4vw, 46px);
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-shadow: 0 0 18px rgba(121, 248, 212, 0.4);
+    }
+
+    header p {
+      max-width: 780px;
+      margin: 16px auto 0;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+      padding: 10px 20px 60px;
+      display: grid;
+      gap: 24px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: linear-gradient(135deg, rgba(18, 26, 47, 0.95), rgba(15, 21, 38, 0.92));
+      border: 1px solid rgba(121, 248, 212, 0.15);
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(4px);
+    }
+
+    .card h2 {
+      font-size: 22px;
+      margin-bottom: 14px;
+      color: var(--neon);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(121, 248, 212, 0.12);
+      color: var(--neon);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    ul {
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+
+    li {
+      padding-left: 20px;
+      position: relative;
+      color: var(--muted);
+    }
+
+    li::before {
+      content: "✦";
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+    }
+
+    .steps {
+      display: grid;
+      gap: 18px;
+    }
+
+    .step {
+      padding: 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(123, 184, 255, 0.2);
+      background: rgba(9, 15, 28, 0.7);
+    }
+
+    .step h3 {
+      font-size: 18px;
+      color: var(--neon-2);
+      margin-bottom: 8px;
+    }
+
+    code,
+    pre {
+      font-family: "JetBrains Mono", "Fira Code", monospace;
+    }
+
+    pre {
+      margin-top: 10px;
+      background: #0a0f1d;
+      border: 1px solid rgba(121, 248, 212, 0.2);
+      padding: 14px;
+      border-radius: 12px;
+      overflow-x: auto;
+      color: #cfeaff;
+    }
+
+    .code-block {
+      position: relative;
+      margin-top: 10px;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      border: 1px solid rgba(121, 248, 212, 0.35);
+      background: rgba(9, 15, 28, 0.9);
+      color: var(--neon);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.2s ease;
+    }
+
+    .copy-btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(121, 248, 212, 0.7);
+    }
+
+    .copy-btn:focus-visible,
+    .toc a:focus-visible,
+    .skip-link:focus-visible {
+      outline: 2px solid var(--neon-2);
+      outline-offset: 3px;
+    }
+
+    .note {
+      margin-top: 12px;
+      padding: 12px 16px;
+      border-left: 3px solid var(--accent);
+      background: rgba(255, 138, 212, 0.08);
+      color: var(--text);
+      border-radius: 8px;
+    }
+
+    .toc {
+      position: sticky;
+      top: 12px;
+      margin: 0 auto 18px;
+      max-width: 1000px;
+      padding: 0 20px;
+      z-index: 2;
+    }
+
+    .toc-card {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      background: rgba(18, 26, 47, 0.85);
+      border: 1px solid rgba(121, 248, 212, 0.2);
+      padding: 12px 16px;
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(6px);
+    }
+
+    .toc a {
+      color: var(--neon-2);
+      font-size: 13px;
+      text-decoration: none;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+    }
+
+    .toc a:hover {
+      border-color: rgba(123, 184, 255, 0.45);
+    }
+
+    .skip-link {
+      position: absolute;
+      left: -999px;
+      top: 10px;
+      background: #0a0f1d;
+      color: var(--neon-2);
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(121, 248, 212, 0.4);
+      z-index: 3;
+    }
+
+    .skip-link:focus {
+      left: 16px;
+    }
+
+    section {
+      scroll-margin-top: 90px;
+    }
+
+    .image-slot {
+      margin-top: 12px;
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px dashed rgba(121, 248, 212, 0.4);
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 10px;
+      background: rgba(123, 184, 255, 0.12);
+      color: var(--neon-2);
+      font-size: 12px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 24px 20px 40px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+  </style>
+</head>
+
+<body>
+  <a class="skip-link" href="#main">跳到主要内容</a>
+  <div class="grid-overlay"></div>
+  <header>
+    <span class="badge">Cloud VPS Rescue</span>
+    <h1>云端 VPS 连接不到外网？这样救回来</h1>
+    <p>当云端 VPS 无法直连外网时，用 <strong>Proxychains + SSH 反向代理</strong> 把本地代理能力借给 VPS，
+      再借助本地代理去安装 <strong>clash-for-linux-cli</strong>，形成可持续的代理链路。</p>
+  </header>
+
+  <nav class="toc" aria-label="快速导航">
+    <div class="toc-card">
+      <a href="#known">已知情况</a>
+      <a href="#overview">总体思路</a>
+      <a href="#step-1">步骤一</a>
+      <a href="#step-2">步骤二</a>
+      <a href="#step-3">步骤三</a>
+      <a href="#step-4">步骤四</a>
+      <a href="#tips">补充小技巧</a>
+    </div>
+  </nav>
+
+  <main id="main">
+    <section class="card" id="known">
+      <h2>已知情况</h2>
+      <ul>
+        <li>无法使用 GitHub</li>
+        <li>无法使用 Docker</li>
+        <li>无法用源码安装 clash-for-linux-cli</li>
+        <li>尝试过安装许多代理软件，都无法安装</li>
+        <li>VPS 需要频繁连接外网</li>
+      </ul>
+    </section>
+
+    <section class="card" id="overview">
+      <h2>总体思路</h2>
+      <ul>
+        <li>云端 VPS 先通过 SSH 反向代理，连接到你本地的代理软件（例如 Clash Verge Rev）。</li>
+        <li>在 VPS 上用 Proxychains 让命令走代理通道。</li>
+        <li>通过代理通道安装 clash-for-linux-cli，后续由 VPS 自己维护代理能力。</li>
+      </ul>
+      <div class="note">关键词：<strong>反向代理 + Proxychains + 本地代理软件</strong>。</div>
+    </section>
+
+    <section class="card" id="step-1">
+      <h2>步骤一：本地代理软件准备</h2>
+      <div class="steps">
+        <div class="step">
+          <h3>1.1 确保本地代理可用</h3>
+          <p>打开 Clash Verge Rev，确认已连接，并记住 <strong>本地 HTTP/SOCKS 端口</strong>。</p>
+          <p class="note">不过其实HTTP端口不去记住也可以啦，SOCKS会去处理HTTP流量的 :) </p>
+          <div class="image-slot">
+            <img src="./clash.png" alt="clash截图">
+          </div>
+        </div>
+        <div class="step">
+          <h3>1.2 开启本地监听</h3>
+          <p>确认本地代理端口允许被 SSH 反向转发访问（默认本地 127.0.0.1 即可）。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="step-2">
+      <h2>步骤二：建立 SSH 反向代理</h2>
+      <p>在本地执行以下命令，把本地代理端口映射给 VPS：</p>
+      <div class="code-block">
+        <button class="copy-btn" type="button" data-copy>复制命令</button>
+        <pre><code>ssh -N -R 1081:127.0.0.1:7890 user@your-vps-ip</code></pre>
+      </div>
+      <ul>
+        <li><span class="tag">1081</span>：VPS 上开放的反向端口（可自定义）。这个参数相当于是在服务器上创建一个隧道的出入口，这个出入口和下边那个出入口连通。</li>
+        <li><span class="tag">7890</span>：本地代理端口（用你 UI 中的端口替换）。这个参数相当于是在本地打开一个隧道出入口，和上边那个连起来。</li>
+        <li><span class="tag">-N&nbsp;&nbsp;</span>:-N选项会给服务器开个隧道，但不会创建一个命令行交互会话。</li>
+      </ul>
+      <div class="note">若 VPS 与本地之间网络不稳定，可加上 <code>ServerAliveInterval参数</code>
+        保持连接,这个参数可以设置在多长时间无操作后断开，防止ssh默认断开等待时间过短。</div>
+    </section>
+
+    <section class="card" id="step-3">
+      <h2>步骤三：VPS 安装并配置 Proxychains</h2>
+      <div class="steps">
+        <div class="step">
+          <h3>3.1 安装 Proxychains</h3>
+          <div class="code-block">
+            <button class="copy-btn" type="button" data-copy>复制命令</button>
+            <pre><code># Debian/Ubuntu
+              sudo apt update
+              sudo apt install proxychains4 -y
+
+              # CentOS/RHEL
+              sudo yum install proxychains-ng -y</code></pre>
+          </div>
+        </div>
+        <div class="step">
+          <h3>3.2 修改配置</h3>
+          <p>编辑 <code>/etc/proxychains4.conf</code>，在末尾添加：</p>
+          <div class="code-block">
+            <button class="copy-btn" type="button" data-copy>复制命令</button>
+            <pre><code>socks5 127.0.0.1 1081</code></pre>
+          </div>
+          <div class="note">端口要对应步骤二的反向端口。</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="step-4">
+      <h2>步骤四：通过代理安装 clash-for-linux-cli</h2>
+      <p>后续所有需要外网的命令都用 Proxychains 包裹：</p>
+      <div class="code-block">
+        <button class="copy-btn" type="button" data-copy>复制命令</button>
+        <pre><code>proxychains4 git clone --branch master --depth 1
+          https://gh-proxy.org/https://github.com/nelvko/clash-for-linux-install.git \
+          && cd clash-for-linux-install \
+          && bash install.sh</code></pre>
+      </div>
+      <ul>
+        <li>把安装脚本地址替换为你实际使用的 clash-for-linux-cli 安装脚本。</li>
+        <li>如果 GitHub 被阻断，可先用镜像站点或通过代理拉取。</li>
+      </ul>
+      <div class="note">安装完成后，你可以逐步减少对本地代理的依赖，让 VPS 自己持久在线。</div>
+    </section>
+
+    <section class="card" id="tips">
+      <h2>补充小技巧</h2>
+      <ul>
+        <li>SSH 反向代理建议写入本地 <code>~/.ssh/config</code>，便于一键重连。</li>
+        <li>可用 <code>proxychains4 curl https://www.google.com</code> 快速测试连通性。</li>
+        <li>若 VPS 需要长时间运行，考虑用 <code>autossh</code> 保持隧道。</li>
+        <li>避免在 VPS 上明文暴露代理端口，仅保留本地回环即可。</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    祝你修复顺利，云端 VPS 重获外网能量。✨
+  </footer>
+  <script>
+    const copyButtons = document.querySelectorAll("[data-copy]");
+
+    copyButtons.forEach((button) => {
+      button.addEventListener("click", async () => {
+        const code = button.parentElement?.querySelector("code");
+        if (!code) {
+          return;
+        }
+
+        try {
+          await navigator.clipboard.writeText(code.innerText.trim());
+          const original = button.textContent;
+          button.textContent = "已复制";
+          button.disabled = true;
+          setTimeout(() => {
+            button.textContent = original;
+            button.disabled = false;
+          }, 1500);
+        } catch (error) {
+          button.textContent = "复制失败";
+          setTimeout(() => {
+            button.textContent = "复制命令";
+          }, 1500);
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>

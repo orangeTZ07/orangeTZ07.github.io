@@ -1,0 +1,132 @@
+<!DOCTYPE>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>i3 Window Manager</title>
+  <!-- 所有block设计样式：有一个背景层，左侧有一个边框，边框的颜色来标识不同的block类型。 -->
+  <style>
+    .warning {}
+
+    .code {}
+
+    .code_block {}
+
+    .explain {}
+  </style>
+</head>
+
+<body>
+  <h1>从窗口管理器到桌面环境🤓</h1>
+  <p class="warning">
+    由于orange十分倾向于键盘流，而替代鼠标的一个绝佳工具warpd在使用时需要使用<span class="code">虚拟指针</span>。
+    但是在 <span class="code">wayland</span>中出于安全考虑，取消了 <span class="code">虚拟指针</span>，防止应用全局接管输入(好事/坏事🤔)。
+    所以orange反复琢磨之下还是回退到了 <span class="code">X11</span>，并且选择了 <span class="code">i3</span> 作为窗口管理器awa。
+    <br>
+    因此，<strong style="color: darkorange"><em>本文将从i3出发,以Arch Linux为例</em></strong>，一步步理解和构建一个美观的x11桌面环境。
+    <br>
+    另外这里也就 <span style="color: darkorange">不再</span> 过多赘述一些基础的环境配置啦，比如输入法、音量控制、网络管理、字体(nerd系列字体对美化超级有用奥)什么的uwu.
+  </p>
+  <hr>
+
+  <div>
+
+    <ul>
+
+      <li>
+        <h3>首先我们需要准备X服务器</h3>
+        <p class="explain">
+        <p>
+          什么是X服务器？它和wayland是什么关系？
+        </p>
+        <p>
+          <a href="https://zhuanlan.zhihu.com/p/661434294">
+            X服务器是一个图形显示服务器，负责管理和显示图形界面。它提供了一个抽象层，使得应用程序可以通过它来绘制图形界面，而不需要直接与硬件交互。
+          </a>
+          <a href="https://wiki.archlinuxcn.org/wiki/Wayland">
+            Wayland是一个新的显示服务器协议，旨在取代X服务器。它提供了更现代化的设计和更好的性能，但由于一些兼容性问题，许多用户仍然选择使用X服务器。
+          </a>
+        </p>
+        <ul class="code_block">
+          <li>
+            sudo pacman -S xorg # 在arch中x全家都被打包到这里面啦
+          </li>
+        </ul>
+        <p>
+          xorg可以简单理解为一个X服务器软件包。而X服务器则负责整个图形界面的绘制，所以说X服务器是我们这个工程的最底层🤓。
+        </p>
+      </li>
+
+      <li>
+        <h3>安装i3窗口管理器</h3>
+        <p class="explain">
+          <a href="https://wiki.archlinux.org/title/I3">i3是一个动态平铺式窗口管理器，具有高度的可定制性和键盘友好性。它允许用户通过键盘快捷键来管理窗口布局，提高工作效率。</a>
+          <a
+            href="https://github.com/irshadcc/i3-gaps">i3-gaps是i3的一个很好看的分支，它是从原来的仓库分化出来的一个同步更新，但是融入了自己觉得更好看的一些元素。现在i3-gaps已经合并到i3官方仓库了，直接下载i3就好啦uwu。</a>
+        </p>
+        <ul class="code_block">
+          <li>
+            sudo pacman -S i3 # 对于Arch仓库来讲，i3全家(绝大多数基础组件)都在这噢
+          </li>
+        </ul>
+        <p>
+          i3相当于是一个用来管理应用程序窗口绘制在屏幕上的位置的工具，它并不负责绘制图像奥，它也不负责一些动画之类的东西。
+        </p>
+      </li>
+
+      <li>
+        <h3>安装picom合成器 #可选，但建议安装</h3>
+        <p class="explain">
+          <a href="https://wiki.archlinuxcn.org/wiki/Picom">picom是一款高性能合成器，它能够为窗口管理器带来美观的动画和窗口效果</a>
+        </p>
+        <ul class="code_block">
+          <li>
+            sudo pacman -S picom
+          </li>
+        </ul>
+        <p>
+          不要天真地以为窗口管理器会来给你提供特效啦，它只负责布局和管理的(至少i3是这样) :)
+          <br>
+          注意，窗口管理器和合成器是不一样的奥，后者通常是负责特效和动画的。
+        </p>
+      </li>
+
+      <li>
+        <h3>安装rofi应用启动器 #可选，但建议安装</h3>
+        <p class="explain">
+          <a href="https://wiki.archlinuxcn.org/wiki/Rofi">rofi是一个高度可定制的应用程序启动器和窗口切换器，它提供了一个简洁的界面，允许用户快速启动应用程序和切换窗口。</a>
+        </p>
+        <ul class="code_block">
+          <li>
+            sudo pacman -S rofi
+          </li>
+          <p>
+            应用启动器，没得说，就是用来快速启动应用的嘛。通常rofi会从 <span class="code">PATH</span> 中寻找可执行文件，并且提供一个界面让用户输入来快速启动应用程序uwu.
+            rofi的启动按键不是固定的，比如在KDE中是 <span class="code">alt + space</span> , 而在i3中需要手动绑定按键。这是两种不同的设置方式，
+            比如在KDE中，rofi会尝试全局注册快捷键(wayland中不允许，但KDE有自己专门针对wayland设计的全局快捷键注册机制);在i3中，我们可以选择安装快捷键管理工具，也可以直接绑定按键(我目前用的后者owo).
+          </p>
+      </li>
+
+      <li>
+        <h3>安装autotiling</h3>
+        <p class="explain">
+          <a href="https://blog.csdn.net/gitblog_00949/article/details/141486158">
+            autotiling是一个自动平铺工具，它可以根据窗口的数量和布局自动调整窗口的大小和位置，使得桌面环境更加整洁和高效。它可以与i3等窗口管理器配合使用，提供更好的用户体验。
+          </a>
+      <li>
+        sudo pacman -S autotiling
+      </li>
+      <p>
+        新装好的i3是不是在处理新窗口的位置和大小时很鸡肋呢，它是不是一个劲地纵向分割屏幕呢，很难看对叭？
+        想要自动得到一个美观的平铺布局？
+        那就快来试试这个自动贴"瓷砖(窗口)"的工具吧uwu.
+      </p>
+
+      </li>
+    </ul>
+    <hr>
+    <p>自此，我们的安装工作基本完成啦，希望你也有认真阅读和理解上述文本奥(这篇博客的主要目的不是带着你来安装和配置啦 &gt;:( )</p>
+    <a href="#">现在你可以来了解一下配置啦，顺带再深入一些来理解整个桌面环境</a>
+  </div>
+</body>

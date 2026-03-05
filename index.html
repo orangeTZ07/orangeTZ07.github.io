@@ -1,0 +1,628 @@
+<html lang="zh-CN">
+
+<head></head>
+
+<body>```html
+
+
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>orange114's Blog</title>
+  <link rel="stylesheet" href="styles/cat.css">
+  <style>
+    /* 首页特定布局和动画样式 */
+    .blog-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      margin-top: 2rem;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.8s ease-out forwards;
+    }
+
+    .nav-sidebar {
+      flex: 1;
+      min-width: 250px;
+      background: rgba(5, 5, 10, 0.9);
+      border: 1px solid var(--neon-green);
+      padding: 1.5rem;
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 2rem;
+      align-self: flex-start;
+      opacity: 0;
+      transform: translateX(-30px);
+      animation: slideInLeft 0.8s ease-out 0.2s forwards;
+    }
+
+    .nav-sidebar::before {
+      content: 'NAV';
+      position: absolute;
+      top: -12px;
+      left: 20px;
+      background: var(--darker-bg);
+      padding: 0 10px;
+      color: var(--neon-green);
+      font-size: 0.9rem;
+    }
+
+    .content-main {
+      flex: 3;
+      min-width: 300px;
+      opacity: 0;
+      transform: translateX(30px);
+      animation: slideInRight 0.8s ease-out 0.4s forwards;
+    }
+
+    .author-card {
+      background: linear-gradient(135deg,
+          rgba(255, 0, 255, 0.1) 0%,
+          rgba(0, 255, 255, 0.1) 100%);
+      border: 2px solid var(--neon-pink);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      backdrop-filter: blur(10px);
+      opacity: 0;
+      transform: scale(0.9);
+      animation: scaleIn 0.6s ease-out 0.6s forwards;
+    }
+
+    .author-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 2px solid var(--neon-blue);
+      object-fit: cover;
+      box-shadow: var(--glow-blue);
+      transition: transform 0.3s ease;
+    }
+
+    .author-avatar:hover {
+      transform: rotate(10deg) scale(1.05);
+    }
+
+    .author-info h2 {
+      color: var(--neon-pink);
+      font-family: 'Orbitron', sans-serif;
+      margin-bottom: 0.5rem;
+      font-size: 1.8rem;
+    }
+
+    .author-info p {
+      color: var(--terminal-text);
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .qq-group {
+      display: inline-block;
+      background: rgba(0, 255, 255, 0.1);
+      border: 1px solid var(--neon-blue);
+      padding: 0.3rem 0.8rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .qq-group:hover {
+      background: rgba(0, 255, 255, 0.2);
+      box-shadow: var(--glow-blue);
+    }
+
+    .category-section {
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    .category-section:nth-child(1) {
+      animation-delay: 0.8s;
+    }
+
+    .category-section:nth-child(2) {
+      animation-delay: 1.0s;
+    }
+
+    .category-section:nth-child(3) {
+      animation-delay: 1.2s;
+    }
+
+    .category-title {
+      color: var(--neon-green);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--neon-green);
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .category-title::before {
+      content: '>';
+      color: var(--neon-pink);
+      animation: blink 1s infinite;
+    }
+
+    .post-item {
+      background: rgba(10, 10, 20, 0.7);
+      border-left: 3px solid var(--neon-blue);
+      padding: 1.2rem;
+      margin-bottom: 1.2rem;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .post-item:hover {
+      transform: translateX(10px);
+      box-shadow: var(--glow-blue);
+      border-left-color: var(--neon-pink);
+    }
+
+    .post-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg,
+          transparent,
+          rgba(0, 255, 255, 0.1),
+          transparent);
+      transition: left 0.5s ease;
+    }
+
+    .post-item:hover::before {
+      left: 100%;
+    }
+
+    .post-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.8rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .post-title {
+      color: var(--neon-pink);
+      font-size: 1.2rem;
+      font-weight: bold;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .post-title:hover {
+      color: var(--neon-blue);
+      text-shadow: var(--glow-blue);
+    }
+
+    .post-date {
+      color: var(--terminal-text);
+      font-size: 0.85rem;
+      opacity: 0.8;
+      white-space: nowrap;
+    }
+
+    .post-summary {
+      color: rgba(0, 255, 136, 0.9);
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin-bottom: 0.8rem;
+    }
+
+    .post-meta {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.8rem;
+      color: var(--neon-blue);
+      flex-wrap: wrap;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .meta-item::before {
+      content: '#';
+      color: var(--neon-green);
+    }
+
+    .nav-list {
+      list-style: none;
+    }
+
+    .nav-item {
+      margin-bottom: 0.8rem;
+    }
+
+    .nav-link {
+      display: block;
+      padding: 0.6rem 1rem;
+      background: rgba(255, 0, 255, 0.05);
+      border: 1px solid transparent;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav-link:hover {
+      background: rgba(255, 0, 255, 0.1);
+      border-color: var(--neon-pink);
+      transform: translateX(5px);
+    }
+
+    .nav-link.active {
+      background: rgba(0, 255, 255, 0.1);
+      border-color: var(--neon-blue);
+      color: var(--neon-blue);
+    }
+
+    .nav-link:focus-visible,
+    .post-title:focus-visible {
+      outline: 2px dashed var(--neon-green);
+      outline-offset: 3px;
+      box-shadow: none;
+    }
+
+    .category-section {
+      scroll-margin-top: 1.2rem;
+    }
+
+    .nav-link.active::before {
+      content: '▶';
+      position: absolute;
+      left: 5px;
+      color: var(--neon-green);
+      animation: blink 1s infinite;
+    }
+
+    /* 动画定义 */
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideInLeft {
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes slideInRight {
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes scaleIn {
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    /* 响应式调整 */
+    @media (max-width: 768px) {
+      .blog-container {
+        flex-direction: column;
+        gap: 1.2rem;
+      }
+
+      .nav-sidebar {
+        position: static;
+        order: 1;
+        min-width: 0;
+        padding: 1rem;
+      }
+
+      .content-main {
+        order: 2;
+        min-width: 0;
+      }
+
+      .author-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.8rem;
+        padding: 1rem;
+      }
+
+      .post-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .post-item:hover {
+        transform: none;
+        box-shadow: none;
+      }
+
+      .post-item {
+        padding: 1rem;
+      }
+
+      .nav-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.6rem;
+      }
+
+      .nav-item {
+        margin: 0;
+      }
+
+      .nav-link {
+        padding: 0.75rem 0.8rem;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+      }
+
+      h1 {
+        font-size: 1.6rem;
+        line-height: 1.3;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .nav-list {
+        grid-template-columns: 1fr;
+      }
+
+      .author-info h2 {
+        font-size: 1.4rem;
+      }
+
+      .category-title {
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+      }
+
+      .post-title {
+        font-size: 1.05rem;
+      }
+
+      .post-summary {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+
+
+
+  <main>
+    <header>
+      <h1
+        style="font-family: 'Orbitron', sans-serif; color: var(--neon-pink); text-align: center; margin-bottom: 1rem;">
+        ORANGE114'S TECH BLOG
+      </h1>
+      <p style="text-align: center; color: var(--neon-blue); font-size: 1.1rem;">
+        &gt;_ 探索技术边界，记录思考轨迹
+      </p>
+    </header>
+
+    <div class="blog-container">
+      <!-- 左侧导航栏 -->
+      <aside class="nav-sidebar">
+        <h3 style="color: var(--neon-green); margin-bottom: 1.5rem; font-family: 'Orbitron', sans-serif;">
+          分类导航
+        </h3>
+        <ul class="nav-list">
+          <li class="nav-item">
+            <a href="#index-section" class="nav-link active" aria-current="page">全部文章</a>
+          </li>
+          <li class="nav-item">
+            <a href="#sys" class="nav-link">系统运维</a>
+          </li>
+          <li class="nav-item">
+            <a href="#desktop" class="nav-link">桌面环境</a>
+          </li>
+          <li class="nav-item">
+            <a href="#welcome" class="nav-link">博客相关</a>
+          </li>
+        </ul>
+
+        <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(0, 255, 255, 0.2);">
+          <h4 style="color: var(--neon-blue); margin-bottom: 1rem; font-size: 1rem;">
+            快速链接
+          </h4>
+          <ul class="nav-list">
+            <li class="nav-item">
+              <a href="https://github.com/orangeTZ07/AIBlogAuto" class="nav-link" target="_blank"
+                rel="noopener noreferrer">博客管理器</a>
+            </li>
+            <li class="nav-item">
+              <a href="https://qun.qq.com/universal-share/share?ac=1&amp;authKey=pb9JP5YVXZNQ4UvXPYM9zht3SoUPuRB98oJoHUeJZM55XUoG3F%2FQfqSl%2FQ4roq%2FO&amp;busi_data=eyJncm91cENvZGUiOiIxMDY0MjQwMjg3IiwidG9rZW4iOiJEcTJLZXBpeENiRVBCYUVPbTlNdHd3dUlTNVlGMkNPYTk5dU54N0xZVjQ0cUdPOVpLRDIvandpdU8xZ2laQWJsIiwidWluIjoiMjI4NjUzMDM3MSJ9&amp;data=j0IEI3fISZrkBiE8k6-Jra1VIfam293Ubg9c1h7J8Oib-BCwopR1B2uiNEnPK4MXyAXcC8mxGkxBLukwa0F2aQ&amp;svctype=4&amp;tempid=h5_group_info"
+                class="nav-link" target="_blank" rel="noopener noreferrer">加入QQ群</a>
+            </li>
+          </ul>
+        </div>
+      </aside>
+
+      <!-- 右侧主内容区 -->
+      <div class="content-main">
+        <!-- 作者信息卡片 -->
+        <div class="author-card">
+          <img src="https://q1.qlogo.cn/g?b=qq&amp;nk=2286530371&amp;s=640" alt="orange114" class="author-avatar">
+          <div class="author-info">
+            <h2>orange114</h2>
+            <p>技术爱好者 | 热爱折腾者 | 开源倡导者 | 人缘毁灭者</p>
+            <p>专注于Linux系统、美化与网络技术</p>
+            <div class="qq-group">
+              MC QQ群: 1064240287
+            </div>
+          </div>
+        </div>
+
+        <!-- 索引区块 -->
+        <section id="index-section">
+          <h2
+            style="color: var(--neon-green); font-family: 'Orbitron', sans-serif; margin-bottom: 2rem; font-size: 1.8rem; display: flex; align-items: center; gap: 1rem;">
+            <span style="color: var(--neon-pink);">&gt;</span> 文章索引
+            <span style="font-size: 1rem; color: var(--neon-blue); opacity: 0.8;">(按分类分组，时间倒序)</span>
+          </h2>
+
+          <!-- 系统运维分类 -->
+          <div class="category-section" id="sys">
+            <h3 class="category-title">系统运维</h3>
+            <div class="post-item">
+              <div class="post-header">
+                <a href="sys/biosVSmultisys/index.html" class="post-title">biosVSmultisys</a>
+                <span class="post-date">2026-03-05</span>
+              </div>
+              <p class="post-summary">
+                本文解释了BIOS更新后多系统引导失败的原因，即UEFI引导模式变更及旧Windows EFI残留导致引导混乱，并提供了使用Linux Live
+                USB和efibootmgr命令重新创建Linux引导条目的详细修复步骤。
+              </p>
+              <div class="post-meta">
+                <span class="meta-item">Custom</span>
+                <span class="meta-item">sys/biosVSmultisys/</span>
+              </div>
+            </div>
+
+            <div class="post-item">
+              <div class="post-header">
+                <a href="sys/vpsnetwork/index.html" class="post-title">vpsnetwork</a>
+                <span class="post-date">2026-03-05</span>
+              </div>
+              <p class="post-summary">
+                当云端VPS无法直连外网时，本文介绍了一种通过SSH反向代理和Proxychains，借助本地代理为VPS建立临时外网连接，并最终安装clash-for-linux-cli以形成可持续代理链路的解决方案。
+              </p>
+              <div class="post-meta">
+                <span class="meta-item">Custom</span>
+                <span class="meta-item">sys/vpsnetwork/</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 桌面环境分类 -->
+          <div class="category-section" id="desktop">
+            <h3 class="category-title">桌面环境</h3>
+            <div class="post-item">
+              <div class="post-header">
+                <a href="desktop/i3/i3_config/index.html" class="post-title">i3_config</a>
+                <span class="post-date">2026-03-05</span>
+              </div>
+              <p class="post-summary">
+                本文展示了一份详细的 i3 窗口管理器配置文件，涵盖了从基础键位、窗口样式、间距调整到壁纸、状态栏、音量亮度控制等常见功能的配置示例与说明。
+              </p>
+              <div class="post-meta">
+                <span class="meta-item">Custom</span>
+                <span class="meta-item">desktop/i3/i3_config/</span>
+              </div>
+            </div>
+
+            <div class="post-item">
+              <div class="post-header">
+                <a href="desktop/i3/understanding_wm/index.html" class="post-title">understanding_wm</a>
+                <span class="post-date">2026-03-05</span>
+              </div>
+              <p class="post-summary">
+                本文以Arch Linux为例，从安装i3窗口管理器出发，逐步介绍如何搭配feh、picom、polybar、rofi等工具，构建一个美观且高效的X11桌面环境，并简要解释了相关组件的作用与协作关系。
+              </p>
+              <div class="post-meta">
+                <span class="meta-item">Custom</span>
+                <span class="meta-item">desktop/i3/understanding_wm/</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 博客相关分类 -->
+          <div class="category-section" id="welcome">
+            <h3 class="category-title">博客相关</h3>
+            <div class="post-item">
+              <div class="post-header">
+                <a href="welcome/index.html" class="post-title">welcome</a>
+                <span class="post-date">2026-03-05</span>
+              </div>
+              <p class="post-summary">
+                本文介绍了如何利用AI辅助撰写技术博客，从构思、撰写到优化，提供了一套高效的内容创作流程，旨在帮助开发者提升写作效率与内容质量。
+              </p>
+              <div class="post-meta">
+                <span class="meta-item">Custom</span>
+                <span class="meta-item">welcome/</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <footer>
+      <p style="margin-bottom: 1rem; color: var(--terminal-text);">
+        © 2026 orange114's Blog. All rights reserved.
+      </p>
+      <p style="color: rgba(0, 255, 136, 0.7); font-size: 0.9rem;">
+        本博客采用自定义样式构建 | 文章分类: Custom | 框架: Custom
+      </p>
+      <p style="margin-top: 1rem; color: var(--neon-blue); font-size: 0.85rem;">
+        最后更新: 2026-03-05 | 文章总数: 5
+      </p>
+    </footer>
+  </main>
+
+  <script>
+    // 仅处理站内锚点，避免干扰 Vimium/Surfingkeys 等插件的链接打开逻辑
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    function setActiveByHash() {
+      const hash = window.location.hash || '#index-section';
+      navLinks.forEach((link) => {
+        const isActive = link.getAttribute('href') === hash;
+        link.classList.toggle('active', isActive);
+        if (isActive) {
+          link.setAttribute('aria-current', 'page');
+        } else {
+          link.removeAttribute('aria-current');
+        }
+      });
+    }
+
+    navLinks.forEach((link) => {
+      const href = link.getAttribute('href') || '';
+      if (!href.startsWith('#')) {
+        return;
+      }
+
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = document.querySelector(href);
+        if (!target) {
+          return;
+        }
+
+        history.pushState(null, '', href);
+        target.scrollIntoView({behavior: 'smooth', block: 'start'});
+        setActiveByHash();
+      });
+    });
+
+    window.addEventListener('hashchange', setActiveByHash);
+    setActiveByHash();
+  </script>
+
+
+
+</body>
+
+</html>

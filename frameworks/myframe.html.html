@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{title}</title>
+    <link rel="stylesheet" href="{style_href}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.10/clipboard.min.js"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --accent: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            line-height: 1.7;
+            color: var(--dark);
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            min-height: 100vh;
+            padding-top: 80px;
+        }
+
+        /* 固定标题 */
+        .sticky-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            padding: 1rem 2rem;
+            transform: translateY(0);
+            transition: var(--transition);
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .sticky-header.hidden {
+            transform: translateY(-100%);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .blog-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .blog-subtitle {
+            font-size: 1rem;
+            color: var(--gray);
+            font-weight: 400;
+            margin-top: 0.2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            position: relative;
+            padding: 0.5rem 0;
+            transition: var(--transition);
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: var(--transition);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* 主容器 */
+        .container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 文章卡片 */
+        .article-card {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 3rem;
+            margin-bottom: 3rem;
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .article-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .article-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary), var(--accent));
+        }
+
+        .article-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .article-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--dark);
+            line-height: 1.2;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, var(--dark), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .article-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+
+        .article-date {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .article-date i {
+            color: var(--accent);
+        }
+
+        /* 内容区域 */
+        .article-content {
+            font-size: 1.1rem;
+            color: #444;
+        }
+
+        .article-content h2 {
+            color: var(--secondary);
+            margin: 2rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .article-content p {
+            margin-bottom: 1.5rem;
+        }
+
+        .article-content a {
+            color: var(--primary);
+            text-decoration: none;
+            border-bottom: 1px dashed var(--primary);
+            transition: var(--transition);
+        }
+
+        .article-content a:hover {
+            color: var(--accent);
+            border-bottom-style: solid;
+        }
+
+        .article-content blockquote {
+            border-left: 4px solid var(--primary);
+            padding: 1rem 1.5rem;
+            margin: 2rem 0;
+            background: #f8f9ff;
+            border-radius: 0 var(--radius) var(--radius) 0;
+            font-style: italic;
+        }
+
+        .article-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: var(--radius);
+            margin: 2rem 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: var(--transition);
+        }
+
+        .article-content img:hover {
+            transform: scale(1.01);
+        }
+
+        /* 代码块样式 */
+        .code-container {
+            position: relative;
+            margin: 2rem 0;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 0.8rem 1.2rem;
+            font-family: 'Consolas', monospace;
+            font-size: 0.9rem;
+        }
+
+        .code-language {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .code-actions {
+            display: flex;
+            gap: 0.8rem;
+        }
+
+        .code-btn {
+            background: transparent;
+            border: none;
+            color: #e2e8f0;
+            cursor: pointer;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.85rem;
+        }
+
+        .code-btn:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .code-btn.copied {
+            background: #48bb78;
+            color: white;
+        }
+
+        .code-content {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            max-height: 500px;
+            transition: max-height 0.5s ease;
+        }
+
+        .code-content.collapsed {
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+        }
+
+        /* 页脚 */
+        .footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--gray);
+            font-size: 0.95rem;
+            border-top: 1px solid #e9ecef;
+            margin-top: 4rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .footer-link {
+            color: var(--gray);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-link:hover {
+            color: var(--primary);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .article-card {
+                padding: 2rem 1.5rem;
+            }
+            
+            .article-title {
+                font-size: 2rem;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .nav-links {
+                gap: 1.5rem;
+            }
+            
+            .sticky-header {
+                padding: 1rem;
+            }
+        }
+
+        /* 滚动条美化 */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(to bottom, var(--secondary), var(--primary));
+        }
+    </style>
+</head>
+<body>
+    <!-- 固定标题 -->
+    <header class="sticky-header" id="stickyHeader">
+        <div class="header-content">
+            <div>
+                <h1 class="blog-title">{blog_name}</h1>
+                <p class="blog-subtitle">{subtitle}</p>
+            </div>
+            <nav class="nav-links">
+                <a href="#" class="nav-link">首页</a>
+                <a href="#" class="nav-link">归档</a>
+                <a href="#" class="nav-link">分类</a>
+                <a href="#" class="nav-link">关于</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="container">
+        <article class="article-card">
+            <header class="article-header">
+                <h1 class="article-title">{title}</h1>
+                <div class="article-meta">
+                    <span class="article-date">
+                        <i class="far fa-calendar"></i>
+                        {date}
+                    </span>
+                    <span class="article-readtime">
+                        <i class="far fa-clock"></i>
+                        阅读时间 5 分钟
+                    </span>
+                </div>
+            </header>
+
+            <div class="article-content">
+                <!-- 内容占位符 -->
+                {content_html}
+                
+                <!-- 示例代码块 -->
+                <div class="code-container">
+                    <div class="code-header">
+                        <div class="code-language">
+                            <i class="fas fa-code"></i>
+                            JavaScript
+                        </div>
+                        <div class="code-actions">
+                            <button class="code-btn copy-btn" data-clipboard-target="#code1">
+                                <i class="far fa-copy"></i>
+                                <span>复制</span>
+                            </button>
+                            <button class="code-btn toggle-btn">
+                                <i class="fas fa-chevron-up"></i>
+                                <span class="toggle-text">折叠</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="code-content" id="code1">
+                        <pre><code>// 示例代码
+function smoothScroll(element) {
+    const target = document.querySelector(element);
+    const headerHeight = document.getElementById('stickyHeader').offsetHeight;
+    const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - headerHeight;
+    
+    window.scrollTo({
+        top: targetPosition,
+        behavior: 'smooth'
+    });
+}
+
+// 复制功能
+const clipboard = new ClipboardJS('.copy-btn');
+clipboard.on('success', function(e) {
+    const btn = e.trigger;
+    btn.classList.add('copied');
+    btn.innerHTML = '<i class="fas fa-check"></i><span>已复制</span>';
+    
+    setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML = '<i class="far fa-copy"></i><span>复制</span>';
+    }, 2000);
+});</code></pre>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <p>© {date} {blog_name} · 保留所有权利</p>
+        <div class="footer-links">
+            <a href="#" class="footer-link">隐私政策</a>
+            <a href="#" class="footer-link">使用条款</a>
+            <a href="#" class="footer-link">联系我</a>
+            <a href="#" class="footer-link">RSS订阅</a>
+        </div>
+    </footer>
+
+    <script>
+        // 固定标题交互
+        let lastScroll = 0;
+        const header = document.getElementById('stickyHeader');
+        
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            
+            if (currentScroll <= 0) {
+                header.classList.remove('hidden');
+                return;
+            }
+            
+            if (currentScroll > lastScroll && !header.classList.contains('hidden')) {
+                header.classList.add('hidden');
+            } else if (currentScroll < lastScroll && header.classList.contains('hidden')) {
+                header.classList.remove('hidden');
+            }
+            
+            lastScroll = currentScroll;
+        });
+
+        // 代码块折叠功能
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const codeContent = this.closest('.code-container').querySelector('.code-content');
+                const icon = this.querySelector('i');
+                const text = this.querySelector('.toggle-text');
+                
+                codeContent.classList.toggle('collapsed');
+                
+                if (codeContent.classList.contains('collapsed')) {
+                    icon.className = 'fas fa-chevron-down';
+                    text.textContent = '展开';
+                } else {
+                    icon.className = 'fas fa-chevron-up';
+                    text.textContent = '折叠';
+                }
+            });
+        });
+
+        // 复制功能初始化
+        const clipboard = new ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+                return trigger.closest('.code-container').querySelector('.code-content');
+            }
+        });
+
+        clipboard.on('success', function(e) {
+            const btn = e.trigger;
+            const originalHTML = btn.innerHTML;
+            
+            btn.classList.add('copied');
+            btn.innerHTML = '<i class="fas fa-check"></i><span>已复制</span>';
+            
+            setTimeout(() => {
+                btn.classList.remove('copied');
+                btn.innerHTML = originalHTML;
+            }, 2000);
+            
+            e.clearSelection();
+        });
+
+        // 页面加载动画
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.style.opacity = '0';
+            document.body.style.transition = 'opacity 0.5s ease';
+            
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+            }, 100);
+        });
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    const headerHeight = header.offsetHeight;
+                    const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - headerHeight;
+                    
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

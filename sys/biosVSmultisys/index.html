@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>更新bios导致多系统无法启动</title>
+    <style>
+        a {
+            color: lightblue;
+            font-size: small;
+        }
+        * {
+            /* text */
+            color: orange;
+        }
+        .code {
+            color: lightgreen;
+            font-size: small;
+        }
+        code {
+            color: lightgreen;
+            font-size: small;
+            position: relative;
+            left: 0%;
+        }
+        .note{
+            color: grey;
+            font-size: small;
+        }
+    </style>
+</head>
+<body style="background-color: black;">
+    <h1>本文章致力于解决BIOS更新导致的多系统电脑无法正常引导的问题</h1>
+
+    <ul>
+        <li>
+            <a href="https://www.sysgeek.cn/uefi-vs-bios-differences/">BIOS和UEFI称呼勘误 / BIOS和UEFI区别</a>
+        </li>
+        <li>
+            <a href="https://baike.baidu.com/item/%E7%BB%9F%E4%B8%80%E5%8F%AF%E6%89%A9%E5%B1%95%E5%9B%BA%E4%BB%B6%E6%8E%A5%E5%8F%A3/22786233">UEFI简介</a>
+        </li>
+    </ul>
+
+    
+    <p>
+        截至本文撰写日期<span class="code">2026.2.11</span>，在更新bios后（一些大厂bios，比如招人厌的微软），通常会改变引导模式为UEFI<span class="code">(legacy->UEFI)</span>。
+        <br>
+        UEFI相对于legacy的一个重要变化是，它并不根据指定的盘启动顺序进行引导，而是改成直接对所有盘的<strong>EFI</strong>进行扫描。如果扫描期间发现合适的，则按启动顺序进行引导。
+        <br>
+        如果之前在某个盘里装过windows,后来进行了简单格式化，换成了linux。这种情况下很有可能<code>/ESP/EFI/Microsoft</code>会没删干净。
+        <br>
+        这种机制下会出现一种情况: 在更新bios后明明设置的是启动linux的grub, 但是bios却一声不吭地把windows给引导了。
+        <br>
+        <br>
+        <ins><strong>在bios升级后，所有bios设置往往被恢复默认。其中，操作系统引导条目经常被抹除，而后再由UEFI自动检测EFI,重新生成引导条目。在生成时，linux的grub有较大概率无法被给予合适的引导条目。这是引发本文所述故障的主要原因。</strong></ins>
+    </p>
+    
+    <hr style="margin-top: 3%; margin-bottom: 1%;">
+
+    <h2>开始解决问题</h2>
+    <div>
+        <p>鉴于大多数情况下，windows并不会因bios更新而遭殃，所以我们主要讨论linux的修复方法。</p>
+        <p>首先我们需要准备一个u盘，其中需要准备一个可用的<span class="code">Linux镜像</span>, 这里推荐使用<a href="https://mirrors.tuna.tsinghua.edu.cn/archlinux/iso/2026.02.01/archlinux-2026.02.01-x86_64.iso">Arch Linux<sup style="color: lightblue; font-size: smaller;">[点击下载]</sup></a>，因为其精简且为纯命令行界面，便于输入命令。</p>
+        <p>之后我们要<a href="https://blog.csdn.net/2401_83666025/article/details/146977986">烧录linux镜像到u盘</a>,烧录完成后我们启动linux</p>
+        <br>
+        <pre>
+我们首先输入以下linux命令
+<code>  > lsblk -f</code>
+假设输出如下：
+<code>
+    NAME        FSTYPE FSVER LABEL  UUID                                 FSAVAIL FSUSE% MOUNTPOINTS
+    nvme0n1
+    ├─nvme0n1p1
+    ├─nvme0n1p2 ntfs                4616CCEF16CCE0D3                      318.7G    31% /mnt/windows
+    └─nvme0n1p3 ntfs                4E0E5A060E59E80B
+    nvme1n1
+    ├─nvme1n1p1 vfat   FAT32        1B6E-2D78                             395.6M    21% /boot
+    ├─nvme1n1p2 btrfs        ORANGE 4edc2976-d0e1-41de-9f76-2fc391ccebcc  571.9G    37% /home
+    │                                                                                   /
+    └─nvme1n1p6 swap   1            2e436e5c-d15f-4f74-8341-84c03d985f32                [SWAP]
+</code>
+根据FSTYPE和磁盘大小，我们可以判断哪个是我们的linux盘
+在这里，linux盘是nvme1n1, 而EFI分区则是那个文件系统为FAT32的分区：nvme1n1p1（通常都是p1）
+然后我们进入到linux盘的EFI分区
+<code>
+    > mkdir -p /mnt/esp/ <span class="note">#先创建一个名字是esp的目录（不创建其实也行）</span>
+    > mount /dev/nvme1n1p1 /mnt/esp <span class="note">#挂载分区，这样我们就能读取分区里的数据了</span>
+    > cd /mnt/esp
+</code>
+完成之后我们要检查一下EFI有没有被破坏
+<code>
+    > ls ./EFI/ <span class="note">#看看有没有arch,microsoft等目录（EFI/Microsoft/Boot：对于Windows系统，这个目录存储了Windows Boot Manager（bootmgfw.efi）和相关的引导配置文件（BCD）等。一般bios生成默认引导条目也就<strong><em>优先</em></strong>靠它了。）</span>
+    > ls ./EFI/arch/ <span class="note">#看看有没有grubx64.efi（这个东西是用来启动grub的）</span>
+</code>
+如果没有被破坏（一般情况下不会被破坏），我们进入下一步
+<code>
+    > efibootmgr -v <span class="note">#查看当前UEFI引导条目</span>
+</code>
+可能会看到如下结果：
+<code>
+    BootCurrent: 0003
+Timeout: 5 seconds
+BootOrder: 0003,0000,0001
+Boot0000* UEFI Micron 2450 NVMe 1024GB 2209360B7833 1   HD(1,GPT,2d5fc791-3fe3-484d-ab13-0e06b78e57d4,0x800,0xfa000)/\EFI\Boot\BootX64.efi{auto_created_boot_option}
+      dp: 04 01 2a 00 01 00 00 00 00 08 00 00 00 00 00 00 00 a0 0f 00 00 00 00 00 91 c7 5f 2d e3 3f 4d 48 ab 13 0e 06 b7 8e 57 d4 02 02 / 04 04 30 00 5c 00 45 00 46 00 49 00 5c 00 42 00 6f 00 6f 00 74 00 5c 00 42 00 6f 00 6f 00 74 00 58 00 36 00 34 00 2e 00 65 00 66 00 69 00 00 00 / 7f ff 04 00
+    data: 4e ac 08 81 11 9f 59 4d 85 0e e2 1a 52 2c 59 b2
+Boot0001* Windows Boot Manager  HD(1,GPT,2d5fc791-3fe3-484d-ab13-0e06b78e57d4,0x800,0xfa000)/\EFI\Microsoft\Boot\bootmgfw.efi57494e444f5753000100000088000000780000004200430044004f0042004a004500430054003d007b00390064006500610038003600320063002d0035006300640064002d0034006500370030002d0061006300630031002d006600330032006200330034003400640034003700390035007d00000031000100000010000000040000007fff0400
+      dp: 04 01 2a 00 01 00 00 00 00 08 00 00 00 00 00 00 00 a0 0f 00 00 00 00 00 91 c7 5f 2d e3 3f 4d 48 ab 13 0e 06 b7 8e 57 d4 02 02 / 04 04 46 00 5c 00 45 00 46 00 49 00 5c 00 4d 00 69 00 63 00 72 00 6f 00 73 00 6f 00 66 00 74 00 5c 00 42 00 6f 00 6f 00 74 00 5c 00 62 00 6f 00 6f 00 74 00 6d 00 67 00 66 00 77 00 2e 00 65 00 66 00 69 00 00 00 / 7f ff 04 00
+    data: 57 49 4e 44 4f 57 53 00 01 00 00 00 88 00 00 00 78 00 00 00 42 00 43 00 44 00 4f 00 42 00 4a 00 45 00 43 00 54 00 3d 00 7b 00 39 00 64 00 65 00 61 00 38 00 36 00 32 00 63 00 2d 00 35 00 63 00 64 00 64 00 2d 00 34 00 65 00 37 00 30 00 2d 00 61 00 63 00 63 00 31 00 2d 00 66 00 33 00 32 00 62 00 33 00 34 00 34 00 64 00 34 00 37 00 39 00 35 00 7d 00 00 00 31 00 01 00 00 00 10 00 00 00 04 00 00 00 7f ff 04 00
+Boot0003* The GREAT ORANGE114 ARCH Linux        HD(1,GPT,2d5fc791-3fe3-484d-ab13-0e06b78e57d4,0x800,0xfa000)/\EFI\arch\grubx64.efi
+      dp: 04 01 2a 00 01 00 00 00 00 08 00 00 00 00 00 00 00 a0 0f 00 00 00 00 00 91 c7 5f 2d e3 3f 4d 48 ab 13 0e 06 b7 8e 57 d4 02 02 / 04 04 30 00 5c 00 45 00 46 00 49 00 5c 00 61 00 72 00 63 00 68 00 5c 00 67 00 72 00 75 00 62 00 78 00 36 00 34 00 2e 00 65 00 66 00 69 00 00 00 / 7f ff 04 00
+</code>
+我这里操作时没插u盘，请按实际情况来看。
+在这里我们可以看到，有些行以<code>Boot000x*</code>开头，紧随其后的是设备名称/引导条目名称
+<del>我们找到自己装linux的那个条目，记住它前边的<code>Boot000x*</code>（这一步可选）</del>
+<strong>现在我们对linux所在的盘创建UEFI引导条目</strong>
+<code>
+    > efibootmgr -c -d /dev/这里填你自己的linux所在盘(不带后边的p[数字],比如nvme1n1p1 -> nvme1n1) -p 1 -L "这里给自己的引导条目取个名字(可以带空格)" -l '\EFI\arch\grubx64.efi' <span class="note">这条命令给linux的grub建立了引导条目</span>
+    <del class="code">> efibootmgr -o 0000,0001<span class="note">设置启动顺序（这一步可选，其实直接在bios里调会更省事。因为这条命令可被替代，所以这里不再赘述。）</span></del>
+</code>
+如果没有明显报错的话，就可以关机，拔掉u盘了
+        </pre>
+<hr>
+<h2>
+    <p>下一步我们打开BIOS设置页面，调一下启动顺序，收工</p>
+</h2>
+    </div>
+
+</body>
+</html>

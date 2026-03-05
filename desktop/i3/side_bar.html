@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>i3 Side Bar</title>
+  <link rel="stylesheet" href="i3.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 16px 12px;
+      background: transparent;
+      color: var(--text);
+      font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", "Noto Sans", sans-serif;
+      width: 260px;
+      height: 100vh;
+      display: flex;
+      align-items: stretch;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(200px 200px at 0% 0%, rgba(50, 240, 160, 0.18), transparent);
+      pointer-events: none;
+      opacity: 0.6;
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+      z-index: 1;
+    }
+
+    .card {
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(10, 15, 20, 0.75);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+
+    .profile {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      border: 1px solid rgba(102, 217, 255, 0.4);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.4);
+      object-fit: cover;
+    }
+
+    .name {
+      font-size: 1.05rem;
+      color: var(--neon);
+      margin: 0 0 4px;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin: 0;
+    }
+
+    .slogan {
+      font-weight: 600;
+      color: var(--pink);
+      margin: 0;
+    }
+
+    .kv {
+      display: grid;
+      grid-template-columns: 70px 1fr;
+      gap: 6px 8px;
+      font-size: 0.9rem;
+    }
+
+    .kv span {
+      color: var(--muted);
+    }
+
+    .panel {
+      position: fixed;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 260px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: rgba(15, 21, 28, 0.82);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px 14px;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      pointer-events: none;
+      transform-origin: right center;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    .panel.is-open {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(-50%) translateX(-8px);
+    }
+
+    .toggle-ball {
+      position: fixed;
+      right: 12px;
+      top: 50%;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, var(--neon), var(--cyan) 45%, var(--pink) 80%);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      color: var(--text);
+      font-weight: 700;
+      user-select: none;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .toggle-ball:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 12px 26px rgba(0, 0, 0, 0.55);
+    }
+
+    .toggle-ball:active {
+      transform: scale(0.98);
+    }
+
+    .toggle-ball.is-hidden {
+      opacity: 0.15;
+    }
+
+    .dragging {
+      cursor: grabbing;
+    }
+
+    @media (max-width: 80px) {
+      body {
+        padding: 16px 8px;
+      }
+
+      .profile {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+
+      .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+      }
+
+      .text-only {
+        display: none;
+      }
+
+      .card {
+        padding: 10px 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="toggle-ball" type="button" aria-expanded="false">i3</button>
+  <aside class="panel" aria-hidden="true">
+    <div class="sidebar">
+      <div class="card profile">
+        <img class="avatar" src="pfp.jpg" alt="orange114 头像">
+        <div class="text-only">
+          <p class="name">orange114</p>
+          <p class="meta">2026.2.22</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="slogan">佬菜带qwq</p>
+      </div>
+
+      <div class="card kv text-only">
+        <span>作者</span>
+        <strong>orange114</strong>
+        <span>日期</span>
+        <strong>2026.2.22</strong>
+        <span>QQ</span>
+        <strong>3818134501</strong>
+      </div>
+    </div>
+  </aside>
+  <script>
+    const ball = document.querySelector(".toggle-ball");
+    const panel = document.querySelector(".panel");
+
+    const syncState = (open) => {
+      ball.setAttribute("aria-expanded", String(open));
+      panel.setAttribute("aria-hidden", String(!open));
+      panel.classList.toggle("is-open", open);
+      ball.classList.toggle("is-hidden", open);
+    };
+
+    let isOpen = false;
+    syncState(isOpen);
+
+    ball.addEventListener("click", () => {
+      if (ball.dataset.dragging === "true") return;
+      isOpen = !isOpen;
+      syncState(isOpen);
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!isOpen) return;
+      const target = event.target;
+      if (ball.contains(target) || panel.contains(target)) return;
+      isOpen = false;
+      syncState(isOpen);
+    });
+
+    let dragOffsetY = 0;
+    let dragging = false;
+    let startX = 0;
+    let startY = 0;
+    const dragThreshold = 6;
+
+    const setBallTop = (clientY) => {
+      const height = 48;
+      const minY = 12;
+      const maxY = window.innerHeight - height - 12;
+      const nextY = Math.max(minY, Math.min(maxY, clientY - dragOffsetY));
+      ball.style.top = `${nextY}px`;
+      panel.style.top = `${nextY + height / 2}px`;
+    };
+
+    ball.addEventListener("pointerdown", (event) => {
+      dragging = true;
+      ball.dataset.dragging = "false";
+      ball.classList.add("dragging");
+      ball.setPointerCapture(event.pointerId);
+      const rect = ball.getBoundingClientRect();
+      dragOffsetY = event.clientY - rect.top;
+      startX = event.clientX;
+      startY = event.clientY;
+    });
+
+    ball.addEventListener("pointermove", (event) => {
+      if (!dragging) return;
+      const moved = Math.hypot(event.clientX - startX, event.clientY - startY);
+      if (moved > dragThreshold && ball.dataset.dragging !== "true") {
+        ball.dataset.dragging = "true";
+      }
+      if (ball.dataset.dragging !== "true") return;
+      setBallTop(event.clientY);
+    });
+
+    const stopDragging = (event) => {
+      if (!dragging) return;
+      dragging = false;
+      ball.classList.remove("dragging");
+      ball.releasePointerCapture(event.pointerId);
+      setTimeout(() => {
+        ball.dataset.dragging = "false";
+      }, 0);
+    };
+
+    ball.addEventListener("pointerup", stopDragging);
+    ball.addEventListener("pointercancel", stopDragging);
+
+    window.addEventListener("resize", () => {
+      const rect = ball.getBoundingClientRect();
+      setBallTop(rect.top + 24);
+    });
+  </script>
+</body>
+</html>

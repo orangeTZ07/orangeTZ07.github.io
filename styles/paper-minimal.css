@@ -1,0 +1,5 @@
+:root { --bg: #f5f2ea; --fg: #2b2620; --accent: #9c5d2e; }
+body { margin:0; font-family: Georgia, serif; background: var(--bg); color: var(--fg); }
+main { max-width: 780px; margin: 40px auto; padding: 0 16px; }
+article { padding: 18px 6px; border-top: 3px double #8a7f70; border-bottom: 3px double #8a7f70; }
+a { color: var(--accent); }

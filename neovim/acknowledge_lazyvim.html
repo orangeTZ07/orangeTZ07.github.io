@@ -1,0 +1,96 @@
+<!DOCTYPE>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>初步了解lazyvim</title>
+    <style>
+    a {
+      color: red;
+    }
+    .text {
+      color: lightblue;
+    }
+    .code {
+      color: lightgreen;
+      background-color: dark;
+      //设置一个金色左侧边框
+      border-left: 2px solid gold;
+      padding: 10px;
+      rounded corners;
+      border-radius: 5px;
+      font-family: monospace;
+      }
+    .warning {
+     color:lightyellow;
+     background-color: lightcoral;
+     border-left: 5px solid red;
+     padding: 10px;
+     rounded corners;
+     border-radius: 5px;
+     font-weight: bold;
+     text-align: center;
+    }
+    </style>
+</head>
+<body style="background-color: black;">
+  <h1 class="text">初步了解lazyvim</h1>
+    <div class="warning">
+      注意：以下内容仅为个人初步了解lazyvim的总结，可能存在误解或不完整之处，请谨慎参考。
+      <br>
+        另外本文并不会太多涉及lazyvim的安装和配置，本文只是帮助大家初步理解lazyvim和vim,以便大家更好地使用nvim。
+    </div>
+    <p class="text">
+      lazyvim是基于neovim的一个配置框架，它为vim提供了更加简便的配置方式和插件管理方式。
+      <br>
+      lazyvim之于nvim,就相当于发行版之于linux内核。
+      <br>
+      安装lazyvim这里不再赘述，可以点击<a href="https://zhuanlan.zhihu.com/p/692316649">此处</a>进行了解。
+    </p>
+    <h3 class="text">首先是目录结构介绍</h3>
+    <div class="code">
+      <pre>
+~/.config/nvim
+├── init.lua
+├── lua
+│   ├── plugins/
+│   ├── config/
+
+nvim/config/
+├── lazyvim.lua
+├── options.lua
+├── keymaps.lua
+
+nvim/plugins/
+├── example.lua
+      </pre>
+    </div>
+    <p class="text">
+      其中nvim/plugins/里面是我们自定义插件的地方，
+      当你在plugins里面添加了 <span class="code">插件.lua</span> 后，lazyvim会自动对插件进行识别，安装和配置。
+      添加插件时建议把某一类插件归为一个 <span class="code">插件类型.lua</span> ，比如要安装AI插件，你想要安装 <span class="code">copilot</span>和 <span class="code">codecompanion</span>,
+      那么推荐你创建一个 <span class="code">AI.lua</span>, 并在里面写入这两个插件的配置。
+    </p>
+<div class="code">
+  <pre>
+-- plugins/AI.lua
+return {
+  {
+    "github/copilot.vim",
+    config = function()
+      vim.g.copilot_no_tab_map = true
+      vim.api.nvim_set_keymap("i", "<C-J>", 'copilot#Accept("<CR>")', { silent = true, expr = true })
+    end,
+  },  
+  {
+    "codecompanion/CodeCompanion.nvim",
+    config = function()
+      require("codecompanion").setup({
+        -- 插件配置项
+      })
+    end,
+  },
+}
+  </pre>
+</div>
+</body>

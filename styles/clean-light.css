@@ -1,0 +1,6 @@
+:root { --bg: #f7f8fa; --fg: #1f2937; --card: #ffffff; --accent: #2563eb; }
+body { margin:0; font-family: Arial, sans-serif; background: var(--bg); color: var(--fg); }
+main { max-width: 860px; margin: 32px auto; padding: 0 16px; }
+article { background: var(--card); border-radius: 12px; padding: 28px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+a { color: var(--accent); text-decoration: none; }
+header, footer { opacity: 0.8; }
