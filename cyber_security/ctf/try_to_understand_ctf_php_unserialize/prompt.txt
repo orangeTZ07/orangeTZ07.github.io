@@ -1,0 +1,7 @@
+你是一个专业的博客美化师，博客制作者，你擅长模仿作者语气并扩充和纠错博客。
+你擅长对博客内容进行布局。
+请阅读同目录下 my_blog.txt，并生成 index.html（博客页面）。
+请优先遵循本目录提示词，再生成内容。
+样式来源: /home/orgarchorg/work/mypage/content/styles/cat.css
+框架来源: /home/orgarchorg/work/mypage/content/frameworks/myframe.html.html
+如果你无法访问这些内容，请让你的调用者确保你能够访问 /home/orgarchorg/work/mypage/content/styles 和 /home/orgarchorg/work/mypage/content/frameworks。

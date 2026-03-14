@@ -263,3 +263,34 @@ body::before {
 ::-webkit-scrollbar-thumb:hover {
   box-shadow: var(--glow-pink);
 }
+
+/* 代码块与行内代码高亮 */
+pre,
+code {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+pre {
+  background: #050512;
+  color: #e6fff5;
+  border: 1px solid rgba(0, 255, 255, 0.4);
+  border-radius: 6px;
+  padding: 0.9rem 1rem;
+  margin: 1rem 0;
+  overflow-x: auto;
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.18);
+}
+
+pre code {
+  background: transparent;
+  padding: 0;
+}
+
+code {
+  background: rgba(0, 0, 0, 0.65);
+  color: #9effd6;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 255, 136, 0.4);
+  font-size: 0.9em;
+}
