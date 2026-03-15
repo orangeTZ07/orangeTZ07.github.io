@@ -256,13 +256,55 @@
             <li>
               如果序列化数据声明的属性数量<strong>多于</strong>实际给出的属性数量，
               反序列化会把那些没有被提供的属性设置为 <code>null</code>；
+              <br>
+              比如类里声明了 3 个属性，但序列化数据里只提供了 2 个，那么第三个属性就会被自动补齐为 <code>null</code>。
+              不过当序列化数据提供的属性数量超过声明数量时，PHP <strong>可能</strong>(具体看版本)会直接把多出来的属性合法化为一个新的属性。
             </li>
             <li>
+              在部分解析器版本中(比如php 5.6.x &lt; 5.6.24)，
               如果序列化数据声明的属性数量<strong>少于</strong>实际给出的属性数量，
               解析器在解析到“足够数量”的属性后，会直接奔向结尾的大括号，结束解析，
-              后面多出来的那一部分就被粗暴忽略了。
+              后面多出来的那一部分就被粗暴忽略了。<br>
+              在CVE-2016-7124的利用场景中并不推荐让声明数量少于实际数量，因为很可能会直接导致解析器崩溃，除非你构造的序列化数据在被截断后剩下的部分刚好还能组成一个合法的序列化结构。
+              比如<code>$c = unserialize('O:4:"test":1:{s:1:"a";i:1;}s:1:"b";i:1;}');</code>
+              <div class="code-content" id="code1">
+                <pre><code>&lt;?php
+                    class test {
+                    public $a;
+                    }
+
+                    $c = unserialize('O:4:"test":1:{s:1:"a";i:1;}s:1:"b";i:1;}');
+                    var_dump($c);
+                </pre></code>
+              </div>
+
+              输出：
+
+              <div class="code-content" id="code1">
+                <pre><code>
+                    ❯ php test.php
+                    PHP Warning: unserialize(): Extra data starting at offset 27 of 40 bytes in
+                    /home/orgarchorg/work/mycodes/php/test.php on
+                    line 6
+                    object(test)#1 (1) {
+                    ["a"]=>
+                    int(1)
+                    }
+
+                    ░▒▓   …/work/mycodes/php   v8.5.4 
+                    ❯ php --version
+                    PHP 8.5.4 (cli) (built: Mar 11 2026 12:09:53) (NTS)
+                    Copyright (c) The PHP Group
+                    Zend Engine v4.5.4, Copyright (c) Zend Technologies
+                    with Zend OPcache v8.5.4, Copyright (c), by Zend Technologies
+                  </code></pre>
+              </div>
+
+              总之CVE-2016-7124推荐的利用方法是让声明数量多于实际数量。
+              这种利用方式在<code>5.6.0-5.6.24 & 7.0.0-7.0.9</code>总是十分稳定。
             </li>
           </ul>
+          <br>
           <p>
             CVE-2016-7124 的一大用点，就是当声明的属性数量和实际数量不对板时，
             解析器会在 <code>__wakeup()</code> 之前抛出错误，终止整个解析流程。
