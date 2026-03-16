@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>空间曲面方程的一点理解 | 欧润吉的学习笔记</title>
+  <script type="text/javascript" src="https://static.jyshare.com/assets/js/mathml/mspace.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@400;700&display=swap');
+
+    :root {
+      --neon-pink: #ff00ff;
+      --neon-blue: #00ffff;
+      --neon-green: #00ff00;
+      --dark-bg: #0a0a14;
+      --darker-bg: #05050a;
+      --terminal-text: #00ff88;
+      --glow-pink: 0 0 10px var(--neon-pink), 0 0 20px var(--neon-pink);
+      --glow-blue: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
+      --glow-green: 0 0 10px var(--neon-green), 0 0 20px var(--neon-green);
+      --scanline: repeating-linear-gradient(0deg,
+          rgba(0, 255, 136, 0.05) 0px,
+          rgba(0, 255, 136, 0.05) 1px,
+          transparent 1px,
+          transparent 2px);
+    }
+
+    /* 基础重置 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* 主体样式 */
+    body {
+      background-color: var(--dark-bg);
+      background-image:
+        var(--scanline),
+        radial-gradient(circle at 20% 30%, rgba(255, 0, 255, 0.1) 0%, transparent 40%),
+        radial-gradient(circle at 80% 70%, rgba(0, 255, 255, 0.1) 0%, transparent 40%);
+      color: var(--terminal-text);
+      font-family: 'JetBrains Mono', monospace;
+      line-height: 1.6;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+      padding-top: 80px;
+    }
+
+    /* CRT 扫描线效果 */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(rgba(10, 10, 20, 0) 50%,
+          rgba(0, 255, 136, 0.02) 50%);
+      background-size: 100% 4px;
+      pointer-events: none;
+      z-index: 9999;
+      animation: scanline 8s linear infinite;
+    }
+
+    /* 猫娘元素装饰 */
+    body::before {
+      content: 'ฅ^•ﻌ•^ฅ';
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      font-size: 2rem;
+      color: var(--neon-pink);
+      opacity: 0.3;
+      z-index: 0;
+      animation: float 4s ease-in-out infinite;
+    }
+
+    /* 固定标题 */
+    .sticky-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: rgba(10, 10, 20, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 2px solid var(--neon-pink);
+      z-index: 1000;
+      padding: 1rem 2rem;
+      transform: translateY(0);
+      transition: all 0.3s ease;
+    }
+
+    .sticky-header.hidden {
+      transform: translateY(-100%);
+    }
+
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .blog-title {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--neon-pink);
+      letter-spacing: 2px;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    .blog-subtitle {
+      font-size: 0.9rem;
+      color: var(--neon-green);
+      font-weight: 400;
+      margin-top: 0.2rem;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .nav-link {
+      text-decoration: none;
+      color: var(--neon-blue);
+      font-weight: 500;
+      position: relative;
+      padding: 0.5rem 0;
+      transition: all 0.3s ease;
+    }
+
+    .nav-link:hover {
+      color: var(--neon-green);
+      text-shadow: var(--glow-green);
+    }
+
+    /* 主内容区域 */
+    main {
+      max-width: 1000px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* 文章区域 */
+    article {
+      background: rgba(5, 5, 10, 0.8);
+      border: 1px solid var(--neon-blue);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      position: relative;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+
+    article:hover {
+      box-shadow: var(--glow-blue);
+      transform: translateY(-2px);
+    }
+
+    article::before {
+      content: '//';
+      position: absolute;
+      top: -12px;
+      left: 20px;
+      background: var(--darker-bg);
+      padding: 0 10px;
+      color: var(--neon-blue);
+      font-size: 0.9rem;
+    }
+
+    .article-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 2px solid rgba(0, 255, 136, 0.3);
+    }
+
+    .article-title {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--neon-pink);
+      line-height: 1.3;
+      margin-bottom: 0.8rem;
+      text-shadow: 0 0 10px rgba(255, 0, 255, 0.3);
+    }
+
+    .article-subtitle {
+      font-size: 0.95rem;
+      color: var(--neon-green);
+      font-style: italic;
+      margin-bottom: 1rem;
+    }
+
+    .article-meta {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      color: var(--neon-blue);
+      font-size: 0.9rem;
+    }
+
+    /* 内容区域 */
+    .article-content {
+      font-size: 1.05rem;
+      color: var(--terminal-text);
+      line-height: 1.8;
+    }
+
+    .article-content h2 {
+      color: var(--neon-pink);
+      margin: 2.5rem 0 1.5rem;
+      padding-bottom: 0.8rem;
+      border-bottom: 2px solid rgba(255, 0, 255, 0.3);
+      font-size: 1.6rem;
+      text-shadow: 0 0 8px rgba(255, 0, 255, 0.2);
+    }
+
+    .article-content h3 {
+      color: var(--neon-blue);
+      margin: 1.5rem 0 1rem;
+      font-size: 1.3rem;
+    }
+
+    .article-content p {
+      margin-bottom: 1.5rem;
+    }
+
+    .article-content br {
+      display: block;
+      margin-bottom: 0.8rem;
+    }
+
+    .article-content a {
+      color: var(--neon-green);
+      text-decoration: none;
+      border-bottom: 1px dashed var(--neon-green);
+      transition: all 0.3s ease;
+    }
+
+    .article-content a:hover {
+      color: var(--neon-blue);
+      text-shadow: var(--glow-blue);
+      border-bottom-style: solid;
+    }
+
+    .article-content ul,
+    .article-content ol {
+      margin: 1.5rem 0 1.5rem 2rem;
+    }
+
+    .article-content li {
+      margin-bottom: 1rem;
+    }
+
+    .article-content li::marker {
+      color: var(--neon-green);
+    }
+
+    /* 数学公式样式 */
+    math {
+      color: var(--neon-green);
+      font-style: italic;
+      margin: 0 0.5rem;
+      display: inline;
+      text-shadow: 0 0 8px rgba(0, 255, 0, 0.5), 0 0 15px rgba(0, 255, 0, 0.3);
+      font-weight: 600;
+    }
+
+    /* 代码块样式 */
+    pre,
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--neon-green);
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(0, 255, 136, 0.3);
+      border-radius: 4px;
+    }
+
+    pre {
+      padding: 1rem;
+      margin: 1.5rem 0;
+      overflow-x: auto;
+      box-shadow: 0 0 10px rgba(0, 255, 136, 0.1);
+    }
+
+    code {
+      padding: 0.2rem 0.4rem;
+      font-size: 0.9em;
+    }
+
+    pre code {
+      background: transparent;
+      border: none;
+      padding: 0;
+    }
+
+    /* 页脚样式 */
+    footer {
+      background: rgba(0, 0, 0, 0.9);
+      border-top: 2px solid var(--neon-green);
+      padding: 2rem;
+      margin-top: 3rem;
+      text-align: center;
+      position: relative;
+      color: var(--terminal-text);
+    }
+
+    footer::before {
+      content: 'orange114';
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--dark-bg);
+      padding: 0 20px;
+      color: var(--neon-green);
+      font-family: 'Orbitron', sans-serif;
+      font-weight: bold;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-link {
+      color: var(--neon-blue);
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .footer-link:hover {
+      color: var(--neon-green);
+      text-shadow: var(--glow-green);
+    }
+
+    /* 终端光标效果 */
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0;
+      }
+    }
+
+    /* 扫描线动画 */
+    @keyframes scanline {
+      0% {
+        transform: translateY(0);
+      }
+
+      100% {
+        transform: translateY(100vh);
+      }
+    }
+
+    /* 故障效果 */
+    @keyframes glitch {
+      0% {
+        left: -100%;
+      }
+
+      50% {
+        left: 100%;
+      }
+
+      100% {
+        left: -100%;
+      }
+    }
+
+    /* 浮动动画 */
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0) rotate(0deg);
+      }
+
+      50% {
+        transform: translateY(-20px) rotate(5deg);
+      }
+    }
+
+    /* 淡入动画 */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    article {
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    /* 响应式调整 */
+    @media (max-width: 768px) {
+      main {
+        padding: 1rem;
+      }
+
+      article,
+      footer {
+        padding: 1.5rem;
+      }
+
+      .article-title {
+        font-size: 1.6rem;
+      }
+
+      .article-content h2 {
+        font-size: 1.3rem;
+      }
+
+      body::before {
+        font-size: 1.5rem;
+        bottom: 10px;
+        right: 10px;
+      }
+
+      .header-content {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+
+      .nav-links {
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .sticky-header {
+        padding: 0.8rem 1rem;
+      }
+
+      .blog-title {
+        font-size: 1.4rem;
+      }
+    }
+
+    /* 滚动条样式 */
+    ::-webkit-scrollbar {
+      width: 12px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--darker-bg);
+      border: 1px solid var(--neon-blue);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(45deg, var(--neon-pink), var(--neon-blue));
+      border-radius: 6px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      box-shadow: var(--glow-pink);
+    }
+  </style>
+</head>
+
+<body xmlns="http://www.w3.org/1998/Math/MathML">
+  <!-- 固定标题 -->
+  <header class="sticky-header" id="stickyHeader">
+    <div class="header-content">
+      <div>
+        <h1 class="blog-title">欧润吉の学习笔记</h1>
+        <p class="blog-subtitle">数学好难qwq</p>
+      </div>
+      <nav class="nav-links">
+        <a href="#" class="nav-link">首页</a>
+        <a href="#" class="nav-link">归档</a>
+        <a href="#" class="nav-link">分类</a>
+        <a href="#" class="nav-link">关于我</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 主内容区 -->
+  <main>
+    <article>
+      <header class="article-header">
+        <h1 class="article-title">空间曲面方程的一点理解</h1>
+        <p class="article-subtitle">在高数学习中对空间旋转曲面方程的思考与总结</p>
+        <div class="article-meta">
+          <span>
+            <i class="far fa-calendar"></i>
+            2026年3月16日
+          </span>
+          <span>
+            <i class="far fa-clock"></i>
+            学习笔记
+          </span>
+        </div>
+      </header>
+
+      <div class="article-content">
+        <p>这篇文章是我在高数学习中的一点思考和总结。与其记到本子上，不如把它整理成一篇更完整的笔记。我发现，对于空间曲面的理解，有一套比较清晰的方法论，今天就想跟大家分享一下我的思路。</p>
+
+        <h2>首先是空间曲面如何书写公式</h2>
+
+        <p>
+          我在学习的过程中意识到，空间向量是依赖于二维平面进行生成的。它的生成方式有很多，但我这里主要聚焦于一种最直观的方式——二维平面旋转所引起的生成。这个方法论对我理解其他更复杂的曲面也很有帮助。
+          <br><br>
+          首先我做个示例来说明这个问题：假设我在xOy平面上有一个圆，现在我让它围绕x轴旋转成为一个圆球。这个圆的方程是
+          <math>x<sup>2</sup> + y<sup>2</sup> = 4</math>。现在它要旋转成空间球体，它将在z轴上留下足迹。在实际的题目中，可能会这样描述：
+          <math>{ x<sup>2</sup> + y<sup>2</sup> = 4, z = 0 }</math>
+          求它的旋转体的方程式。
+          <br><br>
+          面对这种情况，我的方法是先把x给固定住，不对x进行任何修改，然后把z加到y上。这样得到：
+          <math>x<sup>2</sup> + 1 \cdot (y<sup>2</sup> + z<sup>2</sup>) = 4</math>
+          这时候我就得到了球体的方程。我发现这个方法很有规律性——旋转哪个轴，就把新轴加到被旋转的轴上。
+        </p>
+
+        <h2>利用截痕法来理解曲面的结构</h2>
+
+        <p>
+          这个过程实际上涉及到了一个很重要的概念——对空间曲面的截痕。什么是截痕法呢？我用一个例子来说明：
+          <br><br>
+          假设我有一个椭球体（假设就是一个xOy椭圆所形成的），它的方程是
+          <math>x<sup>2</sup>/a<sup>2</sup> + y<sup>2</sup>/b<sup>2</sup> + z<sup>2</sup>/c<sup>2</sup> = 1</math>
+          <br><br>
+          在截痕法中，假设我目前不容易接受加上z轴的这个三维空间曲面，那么我可以直接把z设置为0。这相当于什么呢？就像我用一把刀，平行于xOy平面对着椭球体切了一刀，刚好切到z = 0的位置。这样一来，三维问题就变成了二维问题。
+          <br><br>
+          这时候变成了什么？变成了
+          <math>x<sup>2</sup>/a<sup>2</sup> + y<sup>2</sup>/b<sup>2</sup> = 1</math>
+          是不是很熟悉了？这就是一个二维平面上的椭圆。这个思路很有用，因为我们往往对二维的东西更有直观感受。
+        </p>
+
+        <h2>从截痕到旋转的方法论</h2>
+
+        <p>
+          好的，现在我们再对上述求球体方程的方法如法炮制。我们要生成一个椭球体：
+          <br><br>
+          首先按要求，我把椭圆绕x轴旋转，然后把z加到y上（这是关键步骤——绕其他轴也可以，绕哪个轴就给哪个轴的元素加上新轴）。得到空间曲面方程：
+          <math>x<sup>2</sup>/a<sup>2</sup> + (y<sup>2</sup> + z<sup>2</sup>)/b<sup>2</sup> = 1</math>
+          <br><br>
+          你可能会问我一个问题：为什么一开始是
+          <math>x<sup>2</sup>/a<sup>2</sup> + y<sup>2</sup>/b<sup>2</sup> + z<sup>2</sup>/c<sup>2</sup> = 1</math>
+          后面怎么就变成
+          <math>x<sup>2</sup>/a<sup>2</sup> + (y<sup>2</sup> + z<sup>2</sup>)/b<sup>2</sup> = 1</math>
+          了呢？c怎么变成b了？
+          <br><br>
+          其实这里的原因是我们是去拿着z=0的截痕，也就是那个椭圆去旋转的。椭圆在y轴正半轴上的长度是b，所以它绕着x轴旋转的时候，打到z轴上的长度也是b。所以在这次旋转中，我们有
+          <math>c = b</math>。
+        </p>
+
+        <h2>处理尺寸变换和压缩</h2>
+
+        <p>
+          现在我们来考虑一个更复杂的情况：如果我们遇到
+          <math>c \neq b</math>
+          的情况是怎么回事呢？
+          <br><br>
+          这种通常是因为旋转并构造了空间曲面方程后，我又对某个轴的长度进行了伸缩变换。比如我要在z轴上对刚刚的椭圆体进行压扁，把它压扁到原来的2/3，我可以对z乘以3/2（因为z轴数值要增长得更快才能变扁嘛）。此时得到：
+          <math>x<sup>2</sup>/a<sup>2</sup> + y<sup>2</sup>/b<sup>2</sup> + (z \cdot 3/2)<sup>2</sup>/b<sup>2</sup> =
+            1</math>
+          <br><br>
+          这时候，
+          <math>c = 2/3 \cdot b</math>。通过这种变换，我可以灵活地调整曲面在各个方向上的"胖瘦"。
+        </p>
+
+        <h2>更多的例子</h2>
+
+        <p>那么有没有更多有趣的例子呢？当然有的，我们上点类型和前边那俩大不相同的。</p>
+
+        <h3>椭圆锥</h3>
+
+        <p>
+          我们先构造一条直线
+          <math>y = kx</math>
+          ，也就是
+          <math>y<sup>2</sup> = k<sup>2</sup> \cdot x<sup>2</sup></math>
+          ，也就是
+          <math>y<sup>2</sup> = j \cdot x<sup>2</sup></math>
+          。
+          <br><br>
+          然后我们把这条直线绕y轴旋转，按照上述方法添加上z轴（旋转到了z轴的区域）：
+          <math>y<sup>2</sup> = j \cdot (x<sup>2</sup> + z<sup>2</sup>)</math>
+          <br><br>
+          此时我们就得到了圆锥体的方程。然后我们按照上述压缩方法对不同轴的长度进行压缩，即可得到椭圆锥。经过这样的变换，我们就得到了一个z轴方向延伸的立体几何图形。
+        </p>
+
+        <h3>单叶双曲面</h3>
+
+        <p>
+          我们首先构造双曲线
+          <math>y<sup>2</sup>/a<sup>2</sup> - z<sup>2</sup>/b<sup>2</sup> = 1</math>
+          <br><br>
+          然后把这条双曲线绕z轴旋转，旋转到了x轴的领域。按照上述方法，我们要把x加到y上，得到了：
+          <math>(y<sup>2</sup> + x<sup>2</sup>)/a<sup>2</sup> - z<sup>2</sup>/b<sup>2</sup> = 1</math>
+          <br><br>
+          这就是单叶双曲面的标准方程。从这个推导过程中能看出来，每一种复杂的空间曲面都有其内在的逻辑和规律，只要抓住了截痕和旋转的本质，就能理解它们。
+        </p>
+
+        <h2>总结</h2>
+
+        <p>
+          以上就是我在学习空间曲面旋转体时总结的方法和经验。这套方法论虽然看起来简单，但我发现它的适用范围很广，很好用(碎碎念：什么时候我能参悟微积分啊😦)。
+          <br><br>
+          希望这篇总结能对你们的学习有所帮助。
+        </p>
+      </div>
+    </article>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="footer">
+    <p>© 2026.3.16 欧润吉的学习笔记 · 保留所有权利</p>
+    <div class="footer-links">
+      <a href="orangetz07.github.io" class="footer-link">个人主页</a>
+    </div>
+  </footer>
+
+  <script>
+    // 固定标题交互
+    let lastScroll = 0;
+    const header = document.getElementById('stickyHeader');
+
+    window.addEventListener('scroll', () => {
+      const currentScroll = window.pageYOffset;
+
+      if (currentScroll <= 0) {
+        header.classList.remove('hidden');
+        return;
+      }
+
+      if (currentScroll > lastScroll && !header.classList.contains('hidden')) {
+        header.classList.add('hidden');
+      } else if (currentScroll < lastScroll && header.classList.contains('hidden')) {
+        header.classList.remove('hidden');
+      }
+
+      lastScroll = currentScroll;
+    });
+
+    // 平滑滚动
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('href');
+        if (targetId === '#') return;
+
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+          const headerHeight = header.offsetHeight;
+          const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - headerHeight;
+
+          window.scrollTo({
+            top: targetPosition,
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
+
+    // 页面加载动画
+    document.addEventListener('DOMContentLoaded', () => {
+      document.body.style.opacity = '0';
+      document.body.style.transition = 'opacity 0.5s ease';
+
+      setTimeout(() => {
+        document.body.style.opacity = '1';
+      }, 100);
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,92 @@
+{
+  "posts": [
+    {
+      "slug": "biosVSmultisys",
+      "summary": "本文旨在解决更新BIOS后，因引导模式被重置为UEFI而导致多系统（尤其是Linux）无法正常启动的问题。文章详细分析了故障原因，并提供了使用Linux Live USB和efibootmgr命令重新创建UEFI引导条目的具体修复步骤。",
+      "category": "Custom",
+      "parent_directory": "content",
+      "draft_dir": "Custom",
+      "article_file": "Custom",
+      "prompt_file": "Custom",
+      "page_url": "sys/biosVSmultisys/index.html",
+      "style": "cat",
+      "framework": "myframe.html",
+      "created_at": "2026-03-11T18:05:54"
+    },
+    {
+      "slug": "equation_of_a_spatial_surface_000_rounding",
+      "summary": "",
+      "category": "math",
+      "draft_dir": "/home/orgarchorg/work/mypage/content/math/equation_of_a_spatial_surface_000_rounding",
+      "article_file": "/home/orgarchorg/work/mypage/content/math/equation_of_a_spatial_surface_000_rounding/my_blog.txt",
+      "prompt_file": "/home/orgarchorg/work/mypage/content/math/equation_of_a_spatial_surface_000_rounding/prompt.txt",
+      "page_url": "math/equation_of_a_spatial_surface_000_rounding/index.html",
+      "style": "cat",
+      "framework": "myframe.html",
+      "created_at": "2026-03-16T19:52:39"
+    },
+    {
+      "slug": "i3_config",
+      "summary": "本文分享了一份详细的 i3 窗口管理器配置文件，涵盖了从基础键位、窗口间距、主题配色到自动启动、多媒体控制等实用功能的配置说明，并附有相关依赖提示。",
+      "category": "Custom",
+      "parent_directory": "content",
+      "draft_dir": "Custom",
+      "article_file": "Custom",
+      "prompt_file": "Custom",
+      "page_url": "desktop/i3/i3_config/index.html",
+      "style": "cat",
+      "framework": "myframe.html",
+      "created_at": "2026-03-11T18:05:54"
+    },
+    {
+      "slug": "try_to_understand_ctf_php_unserialize",
+      "summary": "本文深入探讨PHP反序列化的核心机制，包括对象还原、__wakeup的作用以及CVE-2016-7124漏洞的成因与修复，并简要分析了字符串逃逸攻击的原理与限制。",
+      "category": "CTF",
+      "draft_dir": "/home/orgarchorg/work/mypage/content/cyber_security/ctf/try_to_understand_ctf_php_unserialize",
+      "article_file": "/home/orgarchorg/work/mypage/content/cyber_security/ctf/try_to_understand_ctf_php_unserialize/my_blog.txt",
+      "prompt_file": "/home/orgarchorg/work/mypage/content/cyber_security/ctf/try_to_understand_ctf_php_unserialize/prompt.txt",
+      "page_url": "cyber_security/ctf/try_to_understand_ctf_php_unserialize/index.html",
+      "style": "cat",
+      "framework": "myframe.html",
+      "created_at": "2026-03-13T22:19:18"
+    },
+    {
+      "slug": "understanding_wm",
+      "summary": "本文以Arch Linux为例，从i3窗口管理器出发，逐步讲解如何构建一个美观且高效的X11桌面环境。文章涵盖了X服务器、i3、壁纸工具、合成器、状态栏、应用启动器等核心组件的安装与作用，帮助你理解从窗口管理器到完整桌面环境的搭建过程。",
+      "category": "Custom",
+      "parent_directory": "content",
+      "draft_dir": "Custom",
+      "article_file": "Custom",
+      "prompt_file": "Custom",
+      "page_url": "desktop/i3/understanding_wm/index.html",
+      "style": "cat",
+      "framework": "myframe.html",
+      "created_at": "2026-03-11T18:05:54"
+    },
+    {
+      "slug": "vpsnetwork",
+      "summary": "当云端VPS无法直连外网时，本文介绍如何通过SSH反向代理和Proxychains，将本地代理能力临时借给VPS，从而成功安装clash-for-linux-cli，最终建立VPS自身可持续的代理链路。",
+      "category": "Custom",
+      "parent_directory": "content",
+      "draft_dir": "Custom",
+      "article_file": "Custom",
+      "prompt_file": "Custom",
+      "page_url": "sys/vpsnetwork/index.html",
+      "style": "cat",
+      "framework": "silky-reading-frame",
+      "created_at": "2026-03-11T18:05:54"
+    },
+    {
+      "slug": "welcome",
+      "summary": "本文介绍了如何利用AI辅助撰写技术博客，从内容构思到最终发布，提供了一套高效的工作流程和实用技巧。",
+      "category": "default",
+      "draft_dir": "/home/orgarchorg/work/mypage/content/welcome",
+      "article_file": "/home/orgarchorg/work/mypage/content/welcome/my_blog.txt",
+      "prompt_file": "/home/orgarchorg/work/mypage/content/welcome/prompt.txt",
+      "page_url": "welcome/index.html",
+      "style": "__default__",
+      "framework": "__default__",
+      "created_at": "2026-03-11T18:49:20"
+    }
+  ]
+}

@@ -431,9 +431,6 @@
             <a href="#index-section" class="nav-link active" aria-current="page">全部文章</a>
           </li>
           <li class="nav-item">
-            <a href="#Math" class="nav-link">数学</a>
-          </li>
-          <li class="nav-item">
             <a href="#CTF" class="nav-link">CTF</a>
           </li>
           <li class="nav-item">
@@ -486,24 +483,6 @@
             <span style="color: var(--neon-pink);">&gt;</span> 文章索引
             <span style="font-size: 1rem; color: var(--neon-blue); opacity: 0.8;">(按分类分组，时间倒序)</span>
           </h2>
-
-          <!-- 数学 分类 -->
-          <div class="category-section" id="Math">
-            <h3 class="category-title">数学</h3>
-            <div class="post-item">
-              <div class="post-header">
-                <a href="math/equation_of_a_spatial_surface_000_rounding/index.html" class="post-title">equation_of_a_spatial_surface_000_rounding</a>
-                <span class="post-date">2026-03-16</span>
-              </div>
-              <p class="post-summary">
-                本文通过圆绕轴旋转形成球体的示例，详细讲解了空间旋转曲面方程的推导方法，介绍了截痕法和旋转法的应用，并阐述了轴长度伸缩变换对曲面方程的影响。
-              </p>
-              <div class="post-meta">
-                <span class="meta-item">math</span>
-                <span class="meta-item">math/equation_of_a_spatial_surface_000_rounding/</span>
-              </div>
-            </div>
-          </div>
 
           <!-- CTF 分类 -->
           <div class="category-section" id="CTF">

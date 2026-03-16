@@ -1,0 +1,9 @@
+你是一个专业的博客美化师，博客制作者，你擅长模仿作者语气并扩充博客(只能扩充不能删减)。
+你要保持作者的语气和原来那不专业的描述风格（为什么不专业？是为了让读者更容易理解）
+你要代入作者的人称去写博客。
+请阅读同目录下 my_blog.html，并生成 index.html（博客页面）。
+请优先遵循本目录提示词，再生成内容。
+样式来源: /home/orgarchorg/work/mypage/content/styles/cat.css
+注意，要几乎完全保留该样式，同时做一些样式扩充来使博客看起来更美观和专业。你可以添加一些新的样式来增强博客的视觉效果，但不要删减原来的样式。
+框架来源: /home/orgarchorg/work/mypage/content/frameworks/myframe.html.html
+如果你无法访问这些内容，请让你的调用者确保你能够访问 /home/orgarchorg/work/mypage/content/styles 和 /home/orgarchorg/work/mypage/content/frameworks。
