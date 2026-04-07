@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CTF WP 索引</title>
+  <link rel="stylesheet" href="../../../styles/cat.css" />
+  <style>
+    :root {
+      --bg: var(--dark-bg);
+      --card: rgba(5, 5, 10, 0.82);
+      --ink: var(--terminal-text);
+      --muted: #8deec8;
+      --line: rgba(0, 255, 255, 0.4);
+      --accent: var(--neon-blue);
+      --accent-2: var(--neon-pink);
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.42);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: inherit;
+      background:
+        radial-gradient(circle at 10% -10%, rgba(255, 0, 255, 0.12), transparent 38%),
+        radial-gradient(circle at 90% 0%, rgba(0, 255, 255, 0.12), transparent 30%),
+        var(--bg);
+      min-height: 100vh;
+    }
+
+    .shell {
+      width: min(1100px, 92vw);
+      margin: 36px auto 56px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, rgba(255, 0, 255, 0.08), rgba(0, 255, 255, 0.08) 55%, rgba(5, 5, 10, 0.95));
+      border: 1px solid var(--line);
+      border-radius: calc(var(--radius) + 4px);
+      box-shadow: var(--shadow);
+      padding: 24px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.6rem, 2.8vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .desc {
+      margin: 10px 0 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .toolbar {
+      margin-top: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .tag {
+      border: 1px solid var(--line);
+      background: rgba(0, 0, 0, 0.35);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.92rem;
+      cursor: pointer;
+      transition: 0.2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tag:hover,
+    .tag.active {
+      color: #00140e;
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      transform: translateY(-1px);
+    }
+
+    .count {
+      margin-left: auto;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .grid {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.58), 0 0 12px rgba(0, 255, 255, 0.24);
+    }
+
+    .title {
+      margin: 0;
+      font-size: 1.03rem;
+      line-height: 1.45;
+      word-break: break-word;
+    }
+
+    .title a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dashed rgba(0, 255, 255, 0.5);
+    }
+
+    .title a:hover {
+      color: var(--accent);
+      border-bottom-style: solid;
+    }
+
+    .meta {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.86rem;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .mini-tags {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .mini-tag {
+      font-size: 0.78rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 0, 255, 0.38);
+      padding: 4px 8px;
+      color: #9effd6;
+      background: rgba(0, 0, 0, 0.45);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .empty {
+      margin-top: 16px;
+      border: 1px dashed rgba(0, 255, 255, 0.45);
+      border-radius: 12px;
+      padding: 18px;
+      color: var(--muted);
+      background: rgba(0, 0, 0, 0.45);
+      line-height: 1.7;
+    }
+
+    .foot {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <h1>CTF WP 目录索引</h1>
+      <p class="desc">当前页面使用硬编码文章列表。点击标记栏中的 <code>#wp</code> 可直接访问 WP 页面。</p>
+
+      <div class="toolbar" id="toolbar">
+        <a class="tag active" href="./index.html">全部</a>
+        <a class="tag" href="./ctfshow172sql.html">#wp</a>
+        <a class="tag" id="wpLink" href="./ctfshow172sql.html" title="跳转到 wp 页面">WP 入口</a>
+        <span class="count" id="count">共 1 篇</span>
+      </div>
+
+      <div class="grid" id="list">
+        <article class="card">
+          <h2 class="title"><a href="./ctfshow172sql.html">ctfshow172sql</a></h2>
+          <div class="meta">
+            <span>ctfshow172sql.html</span>
+          </div>
+          <div class="mini-tags">
+            <a class="mini-tag" href="./ctfshow172sql.html">#wp</a>
+            <span class="mini-tag">#web</span>
+          </div>
+        </article>
+      </div>
+      <div class="foot">如需新增文章，请在此页面继续硬编码添加新的 <code>article.card</code> 条目。</div>
+    </section>
+  </main>
+</body>
+</html>

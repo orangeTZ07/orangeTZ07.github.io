@@ -1,0 +1,9 @@
+mysql在arch上的安装并不复杂，但mysql似乎已经被mariadb取代了，所以在arch上安装mysql会安装mariadb，安装完成后需要进行一些配置才能使用。
+首先安装mariadb,安装完成之后要先启动mariadb服务：<code>systemctl enable mariadb</code>，然后启动服务：<code>systemctl start mariadb</code>，接下来需要进行安全配置：<code>mariadb_secure_installation</code>，按照提示进行操作，设置root(不是系统用户，是数据库root)密码，删除匿名用户，禁止远程登录(可选)等。完成后就可以使用mysql(mariadb)了，可以使用命令行工具或者图形化工具连接mysql服务器。
+初次使用mariadb时，先创建一个用户<code>CREATE USER 'orange114'@'localhost' IDENTIFIED BY 'password';</code> 整个过程可以视为逐词的语义解析，CREATE -> USER/[DATABASE/TABLE/SCHEMA] -> [name/args] -> 参数。 上述命令也可以替代为:<CODE> CREATE USER 'orange114'@'localhost'; UPDATE mysql.user SET password = PASSWORD('password') WHERE User = 'orange114'; FLUSH PRIVILEGE;其中mysql.user是[仓库名].[表名] 。mariadb对仓库名和表名的大小写是敏感度，其余的比如说命令和字段名是不敏感的，你完全可以写<code>SeLeCt</code>。mariadb在未使用CREATE等专门用来处理特殊信息的命令去修改特殊信息，比如不用CREATE USER来创建新用户，而是直接去修改mysql.user这种硬核方式来改的话，需要用FLUSH PRIVILEGE来重新加载mysql.user等mysql仓库中的表（当然FLUSH也能刷新别的东西，FLUSH其实就是用来把本地的一些表单变动加载进内存的）。上述命令也可以替代为: SET PASSWORD FOR 'orange114'@'localhost' = 'password'，如果不带@'localhost'的话，默认是@'%'。%
+是类似于通配符*的存在。
+然后我们给orange114创建一个仓库：CREATE DATABASE test1;
+然后要给orange114分配权限：GRANT ALL[或者你自己指定，比如SELECT/CREATE/UPDATE] PRIVILEGES ON test1.* TO 'orange114'@'localhost'（这里小心不要漏掉localhost,，否则就会变成'orange114'@'%'，安全隐患很大）。最后刷新权限：FLUSH PRIVILEGES;，这样orange114就可以使用test1这个仓库了。
+然后我们就可以进入愉快的mySQL语法学习环节，以下内容将不涉及基础语法，只讲一些相对高级/偏向安全岗的内容。
+-------
+<这里留空用来填后续链接>
